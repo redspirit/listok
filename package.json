@@ -1,0 +1,14 @@
+{
+  "name": "listok",
+  "version": "1.0.0",
+  "description": "Шаблонизатор для Node.js с синтаксисом {{mustache}}",
+  "main": "Listok.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "redspirit",
+  "license": "ISC",
+  "dependencies": {
+    "get-value": "^3.0.1"
+  }
+}
