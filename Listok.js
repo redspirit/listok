@@ -6,6 +6,7 @@ class Listok {
     constructor(viewsDir) {
         this.viewsDir = viewsDir ? viewsDir : process.cwd();
         this.tags = ['{{', '}}'];
+        this.subKey = '_';
         let tl = this.tags[0];
         let tr = this.tags[1];
 
@@ -33,16 +34,11 @@ class Listok {
     }
 
     getFromContext(context, key) {
-        if (key === '_') {
+        if (key === this.subKey) {
             return context;
         } else {
             return this.isPrimitive(context) ? '' : get(context, key);
         }
-        // if (this.isPrimitive(context)) {
-        //     return key === '_' ? context : '';
-        // } else {
-        //     return get(context, key);
-        // }
     }
 
     parseSections(template, context) {
@@ -82,10 +78,9 @@ class Listok {
 
     replacePlaceholder(context, key) {
         let value = this.getFromContext(context, key);
-        console.log('context', context);
-        console.log('key', key);
-        console.log('value', value);
-        console.log('isEmpty', this.isEmpty(value));
+        // console.log('context', context);
+        // console.log('key', key);
+        // console.log('value', value);
         if (this.isEmpty(value)) {
             return '';
         } else if (typeof value === 'string') {
@@ -100,7 +95,6 @@ class Listok {
     replaceFunction(context, key, tagParams) {
         if (key === 'include' && tagParams) {
             let fileName = tagParams.trim().slice(1,-1);
-            console.log('CTX', context);
             return this.renderFile(fileName, context);
         }
         let func = this.getFromContext(context, key);

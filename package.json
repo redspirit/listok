@@ -1,13 +1,27 @@
 {
   "name": "listok",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Шаблонизатор для Node.js с синтаксисом {{mustache}}",
+  "homepage": "https://github.com/redspirit/listok",
+  "author": "RedSpirit (https://github.com/redspirit)",
+  "bugs": {
+    "url": "https://github.com/redspirit/listok/issues"
+  },
+  "engines": {
+    "node": ">=12.0"
+  },
+  "keywords": [
+    "templater",
+    "templates",
+    "templating",
+    "html",
+    "mustache"
+  ],
   "main": "Listok.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test/test1.js"
   },
-  "author": "redspirit",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "get-value": "^3.0.1"
   }
