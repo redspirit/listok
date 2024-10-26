@@ -9,10 +9,10 @@ const view = {
         return 'Red Spirit ' + JSON.stringify(params);
     },
     booksArr: [{name: 'book 1'}, {name: 'book 2'}],
-    booksObj: true,
+    booksObj: false,
     // booksObj: {name: 'For dummies )'},
-    booksFunc: () => {
-        return {name: 'Zloy Awaw'};
+    booksFunc: (params) => {
+        return 'Zloy Awaw is ' + params.name;
     }
 
 };

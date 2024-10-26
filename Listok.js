@@ -11,7 +11,7 @@ class Listok {
         let tr = this.tags[1];
 
         this.tagReg = new RegExp(`${tl}\\s*([\\da-z_.]+?)(\\(.*\\))?\\s*${tr}`, 'gi');
-        this.sectionReg = new RegExp(`${tl}\\s*#([\\da-z_.]+?)\\s*${tr}(.*)${tl}\\s*\\/\\1\\s*${tr}`, 'gis');
+        this.sectionReg = new RegExp(`${tl}\\s*([#!])([\\da-z_.!]+?)(\\(.*\\))?\\s*${tr}(.*?)${tl}\\s*\\/\\2\\s*${tr}`, 'gis');
     }
 
     isPrimitive(test) {
@@ -33,19 +33,21 @@ class Listok {
         return params;
     }
 
-    getFromContext(context, key) {
+    getFromContext(context, key, tagType = '#') {
+        let ctx;
         if (key === this.subKey) {
-            return context;
+            ctx = context;
         } else {
-            return this.isPrimitive(context) ? '' : get(context, key);
+            ctx = this.isPrimitive(context) ? '' : get(context, key);
         }
+        return tagType === '!' ? !ctx : ctx;
     }
 
     parseSections(template, context) {
-        template = template.replaceAll(this.sectionReg, (original, tagName, innerBody) => {
-            // console.log({original, tagName, innerBody});
-            let subContext = this.getFromContext(context, tagName);
-            return this.replaceSection(innerBody, subContext);
+        template = template.replaceAll(this.sectionReg, (original, tagType, tagName, tagParams, innerBody) => {
+            //console.log({tagType, tagName, tagParams});
+            let subContext = this.getFromContext(context, tagName, tagType);
+            return this.replaceSection(innerBody, subContext, tagParams);
         });
 
         template = template.replaceAll(this.tagReg, (original, tagName, tagParams) => {
@@ -59,7 +61,7 @@ class Listok {
         return template;
     }
 
-    replaceSection(innerBody, subContext) {
+    replaceSection(innerBody, subContext, tagParams) {
         if (this.isEmpty(subContext)) {
             return '';
         } else if (Array.isArray(subContext)) {    // is array
@@ -69,7 +71,7 @@ class Listok {
             }
             return multiBody;
         } else if (typeof subContext === 'function') {  // is function
-            let funcResult = subContext();
+            let funcResult = subContext(this.parseFunctionParams(tagParams));
             return this.replaceSection(innerBody, funcResult);
         } else {        // is object
             return this.parseSections(innerBody, subContext);
