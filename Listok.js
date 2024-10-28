@@ -12,6 +12,8 @@ class Listok {
 
         this.tagReg = new RegExp(`${tl}\\s*([\\da-z_.]+?)(\\(.*\\))?\\s*${tr}`, 'gi');
         this.sectionReg = new RegExp(`${tl}\\s*([#!])([\\da-z_.!]+?)(\\(.*\\))?\\s*${tr}(.*?)${tl}\\s*\\/\\2\\s*${tr}`, 'gis');
+
+        this.context = {};
     }
 
     isPrimitive(test) {
@@ -24,6 +26,7 @@ class Listok {
 
     parseFunctionParams(str) {
         let params = {};
+        if(!str) return params;
         str = str.trim().slice(1,-1);
         str.split(',').forEach(p => {
             let chunks = p.trim().split('=');
@@ -38,7 +41,11 @@ class Listok {
         if (key === this.subKey) {
             ctx = context;
         } else {
-            ctx = this.isPrimitive(context) ? '' : get(context, key);
+            if(key.charAt(0) === '.') {
+                ctx = this.isPrimitive(this.context) ? '' : get(this.context, key.substring(1));
+            } else {
+                ctx = this.isPrimitive(context) ? '' : get(context, key);
+            }
         }
         return tagType === '!' ? !ctx : ctx;
     }
@@ -110,6 +117,7 @@ class Listok {
     }
 
     render(template, context) {
+        this.context = context;
         return this.parseSections(template, context);
     }
 
@@ -119,6 +127,7 @@ class Listok {
             throw new Error(`Template file ${filePath} not found!`);
         }
         let template = fs.readFileSync(filePath).toString();
+        this.context = context;
         return this.parseSections(template, context);
     }
 }

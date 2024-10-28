@@ -9,14 +9,14 @@ const view = {
         return 'Red Spirit ' + JSON.stringify(params);
     },
     booksArr: [{name: 'book 1'}, {name: 'book 2'}],
-    booksObj: false,
-    // booksObj: {name: 'For dummies )'},
+    // booksObj: false,
+    booksObj: {name: 'For dummies )'},
     booksFunc: (params) => {
         return 'Zloy Awaw is ' + params.name;
     }
 
 };
 
-let content = listok.renderFile('test/template2.html', view);
+let content = listok.renderFile('test/template.html', view);
 console.log('--------------------------------------------');
 console.log(content);
