@@ -10,8 +10,8 @@ class Listok {
         let tl = this.tags[0];
         let tr = this.tags[1];
 
-        this.tagReg = new RegExp(`${tl}\\s*([\\da-z_.]+?)(\\(.*\\))?\\s*${tr}`, 'gi');
-        this.sectionReg = new RegExp(`${tl}\\s*([#!])([\\da-z_.!]+?)(\\(.*\\))?\\s*${tr}(.*?)${tl}\\s*\\/\\2\\s*${tr}`, 'gis');
+        this.tagReg = new RegExp(`${tl}([\\da-z_.$]+?)(\\(.*\\))?${tr}`, 'gi');
+        this.sectionReg = new RegExp(`${tl}([#!])([\\da-z_.!$]+?)(\\(.*?\\))?${tr}(.*?)${tl}\\/\\2${tr}`, 'gis');
 
         this.context = {};
     }
@@ -41,7 +41,7 @@ class Listok {
         if (key === this.subKey) {
             ctx = context;
         } else {
-            if(key.charAt(0) === '.') {
+            if(key.charAt(0) === '$') {
                 ctx = this.isPrimitive(this.context) ? '' : get(this.context, key.substring(1));
             } else {
                 ctx = this.isPrimitive(context) ? '' : get(context, key);
@@ -79,6 +79,8 @@ class Listok {
             return multiBody;
         } else if (typeof subContext === 'function') {  // is function
             let funcResult = subContext(this.parseFunctionParams(tagParams));
+            console.log('REPL innerBody', innerBody);
+            console.log('REPL funcResult', funcResult);
             return this.replaceSection(innerBody, funcResult);
         } else {        // is object
             return this.parseSections(innerBody, subContext);
@@ -103,8 +105,9 @@ class Listok {
 
     replaceFunction(context, key, tagParams) {
         if (key === 'include' && tagParams) {
+            console.log('INCL', key, tagParams);
             let fileName = tagParams.trim().slice(1,-1);
-            return this.renderFile(fileName, context);
+            return this.renderFile(fileName, context, false);
         }
         let func = this.getFromContext(context, key);
         if (this.isEmpty(func)) {
@@ -116,18 +119,18 @@ class Listok {
         }
     }
 
-    render(template, context) {
-        this.context = context;
+    render(template, context, setGlobalContext = true) {
+        if (setGlobalContext) this.context = context;
         return this.parseSections(template, context);
     }
 
-    renderFile(fileName, context) {
+    renderFile(fileName, context, setGlobalContext = true) {
         let filePath = pathLib.join(this.viewsDir, fileName);
         if (!fs.existsSync(filePath)) {
             throw new Error(`Template file ${filePath} not found!`);
         }
         let template = fs.readFileSync(filePath).toString();
-        this.context = context;
+        if (setGlobalContext) this.context = context;
         return this.parseSections(template, context);
     }
 }

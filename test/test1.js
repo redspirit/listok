@@ -17,6 +17,6 @@ const view = {
 
 };
 
-let content = listok.renderFile('test/template.html', view);
+let content = listok.renderFile('./template.html', view);
 console.log('--------------------------------------------');
 console.log(content);
