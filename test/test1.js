@@ -4,6 +4,7 @@ let listok = new Listok();
 
 const view = {
     menuTitle: 'The Blog!',
+    showThis: true,
     copyright: 'LISTOK.js',
     author: (params) => {
         return 'Red Spirit ' + JSON.stringify(params);
@@ -11,12 +12,21 @@ const view = {
     booksArr: [{name: 'book 1'}, {name: 'book 2'}],
     // booksObj: false,
     booksObj: {name: 'For dummies )'},
-    booksFunc: (params) => {
-        return 'Zloy Awaw is ' + params.name;
+    booksFunc: () => {
+        return [
+            {name: 'book 1'},
+            {name: 'book 2'},
+        ]
     }
-
 };
 
-let content = listok.renderFile('./template.html', view);
+listok.defineFunction('globFunc', (params) => {
+    return [
+        {name: 'book 1'},
+        {name: 'book 2'},
+    ]
+});
+
+let content = listok.renderFile('test/template.html', view);
 console.log('--------------------------------------------');
 console.log(content);

@@ -14,6 +14,7 @@ class Listok {
         this.sectionReg = new RegExp(`${tl}([#!])([\\da-z_.!$]+?)(\\(.*?\\))?${tr}(.*?)${tl}\\/\\2${tr}`, 'gis');
 
         this.context = {};
+        this.funcContext = {};
     }
 
     isPrimitive(test) {
@@ -36,6 +37,16 @@ class Listok {
         return params;
     }
 
+    mergeObjects (target, source) {
+        const result = { ...target };
+        for (const key in source) {
+            if (source[key] !== null && source[key] !== undefined) {
+                result[key] = source[key];
+            }
+        }
+        return result;
+    }
+
     getFromContext(context, key, tagType = '#') {
         let ctx;
         if (key === this.subKey) {
@@ -44,7 +55,9 @@ class Listok {
             if(key.charAt(0) === '$') {
                 ctx = this.isPrimitive(this.context) ? '' : get(this.context, key.substring(1));
             } else {
-                ctx = this.isPrimitive(context) ? '' : get(context, key);
+                // console.log('key', key);
+                // console.log('context', this.mergeObjects(context, this.funcContext));
+                ctx = get(this.mergeObjects(context, this.funcContext), key);
             }
         }
         return tagType === '!' ? !ctx : ctx;
@@ -78,9 +91,9 @@ class Listok {
             }
             return multiBody;
         } else if (typeof subContext === 'function') {  // is function
-            let funcResult = subContext(this.parseFunctionParams(tagParams));
-            console.log('REPL innerBody', innerBody);
-            console.log('REPL funcResult', funcResult);
+            let funcResult = subContext(this.parseFunctionParams(tagParams, subContext));
+            // console.log('REPL innerBody', innerBody);
+            // console.log('REPL funcResult', funcResult);
             return this.replaceSection(innerBody, funcResult);
         } else {        // is object
             return this.parseSections(innerBody, subContext);
@@ -97,7 +110,7 @@ class Listok {
         } else if (typeof value === 'string') {
             return value;
         } else if (typeof value === 'function') {
-            return value();
+            return value(context);
         } else {
             return value ? value.toString() : '';
         }
@@ -105,7 +118,7 @@ class Listok {
 
     replaceFunction(context, key, tagParams) {
         if (key === 'include' && tagParams) {
-            console.log('INCL', key, tagParams);
+            // console.log('INCL', key, tagParams);
             let fileName = tagParams.trim().slice(1,-1);
             return this.renderFile(fileName, context, false);
         }
@@ -117,6 +130,10 @@ class Listok {
         } else {
             return func.toString();
         }
+    }
+
+    defineFunction(name, fn) {
+        this.funcContext[name] = fn;
     }
 
     render(template, context, setGlobalContext = true) {
