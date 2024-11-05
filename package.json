@@ -1,6 +1,6 @@
 {
   "name": "listok.js",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Шаблонизатор для Node.js с синтаксисом {{mustache}}",
   "homepage": "https://github.com/redspirit/listok",
   "author": "RedSpirit (https://github.com/redspirit)",
