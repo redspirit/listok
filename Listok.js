@@ -126,7 +126,7 @@ class Listok {
         if (this.isEmpty(func)) {
             return '';
         } else if(typeof func === 'function') {
-            return func(this.parseFunctionParams(tagParams));
+            return func(this.parseFunctionParams(tagParams), context);
         } else {
             return func.toString();
         }
