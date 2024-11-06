@@ -19,10 +19,14 @@
   ],
   "main": "Listok.js",
   "scripts": {
-    "test": "node test/test1.js"
+    "test": "mocha test/*/* --timeout 10000 --exit"
   },
   "license": "MIT",
   "dependencies": {
     "get-value": "^3.0.1"
+  },
+  "devDependencies": {
+    "chai": "^4.5.0",
+    "mocha": "^10.8.2"
   }
 }
