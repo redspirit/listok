@@ -20,7 +20,7 @@ describe('Simple Placeholders', () => {
         expect(rendered).to.equal('My name is Jane and I am 30 years old.');
     });
 
-    it('should escape HTML entities', () => {
+    it('should render with HTML entities', () => {
         const template = '<p>{{name}}</p>';
         const data = { name: '<b>Bold text</b>' };
         const rendered = listok.render(template, data);
@@ -40,11 +40,41 @@ describe('Simple Placeholders', () => {
         expect(rendered).to.equal(' is  years old.');
     });
 
-    it('should handle missing values', () => {
-        const template = '{{name}} is {{age}} years old.';
-        const rendered = listok.render(template, {});
-        expect(rendered).to.equal(' is  years old.');
+    it('should not handle syntax error', () => {
+        const template = 'Hello, {{name}!';
+        const data = { name: 'John' };
+        const rendered = listok.render(template, data);
+        expect(rendered).to.equal('Hello, {{name}!');
     });
+
+    it('should not handle with whitespaces', () => {
+        const template = 'Hello, {{ name }}';
+        const data = { name: 'John' };
+        const rendered = listok.render(template, data);
+        expect(rendered).to.equal('Hello, {{ name }}');
+    });
+
+    it('should render object value', () => {
+        const template = 'Show me {{item}}';
+        const data = { item: {foo: 'var'} };
+        const rendered = listok.render(template, data);
+        expect(rendered).to.equal('Show me [object Object]');
+    });
+
+    it('should render array value', () => {
+        const template = 'Show me {{items}}';
+        const data = { items: [1, 2, 3] };
+        const rendered = listok.render(template, data);
+        expect(rendered).to.equal('Show me 1,2,3');
+    });
+
+    it('should render a multiline template', () => {
+        const template = `<div>\n{{name}}\n</div>`;
+        const data = { name: 'block' };
+        const rendered = listok.render(template, data);
+        expect(rendered).to.equal('<div>\nblock\n</div>');
+    });
+
 });
 
 describe('Functions Placeholders', () => {
@@ -75,6 +105,24 @@ describe('Functions Placeholders', () => {
         };
         const rendered = listok.render(template, data);
         expect(rendered).to.equal('Today <b>2024-11-06</b>');
+    });
+
+    it('should render a global function', () => {
+        const template = 'Result is {{calc(val=49)}}';
+        listok.defineFunction('calc', (params) => {
+            return Math.sqrt(params.val);
+        })
+        const rendered = listok.render(template, {});
+        expect(rendered).to.equal('Result is 7');
+    });
+
+    it('should render a global function with context', () => {
+        const template = 'Result is {{calc2()}}';
+        listok.defineFunction('calc2', (params, ctx) => {
+            return Math.sqrt(ctx.myValue);
+        })
+        const rendered = listok.render(template, {myValue: 64});
+        expect(rendered).to.equal('Result is 8');
     });
 
 });
