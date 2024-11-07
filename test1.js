@@ -1,4 +1,4 @@
-const Listok = require('../Listok');
+const Listok = require('./Listok');
 
 let listok = new Listok();
 

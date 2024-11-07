@@ -11,7 +11,7 @@ class Listok {
         let tr = this.tags[1];
 
         this.tagReg = new RegExp(`${tl}([\\da-z_.$]+?)(\\(.*\\))?${tr}`, 'gi');
-        this.sectionReg = new RegExp(`${tl}([#!])([\\da-z_.!$]+?)(\\(.*?\\))?${tr}(.*?)${tl}\\/\\2${tr}`, 'gis');
+        this.sectionReg = new RegExp(`${tl}([#!])([\\da-z_.!$]+?)(\\(.*?\\))?(->[\\da-z_]+?)?${tr}(.*?)${tl}\\/\\2${tr}`, 'gis');
 
         this.context = {};
         this.funcContext = {};
@@ -47,7 +47,7 @@ class Listok {
         return result;
     }
 
-    getFromContext(context, key, tagType = '#') {
+    getFromContext(context, key, tagType = '#', ctxPointer) {
         let ctx;
         if (key === this.subKey) {
             ctx = context;
@@ -64,9 +64,10 @@ class Listok {
     }
 
     parseSections(template, context) {
-        template = template.replaceAll(this.sectionReg, (original, tagType, tagName, tagParams, innerBody) => {
-            //console.log({tagType, tagName, tagParams});
-            let subContext = this.getFromContext(context, tagName, tagType);
+        template = template.replaceAll(this.sectionReg, (original, tagType, tagName, tagParams, _ctxPointer, innerBody) => {
+            let ctxPointer = _ctxPointer ? _ctxPointer.slice(2) : null; // remove '->'
+            // console.log({tagType, tagName, tagParams, ctxPointer});
+            let subContext = this.getFromContext(context, tagName, tagType, ctxPointer);
             return this.replaceSection(innerBody, subContext, tagParams);
         });
 
