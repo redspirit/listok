@@ -14,7 +14,6 @@ class Listok {
         this.sectionReg = new RegExp(`${tl}([#!])([\\da-z_.!$]+?)(\\(.*?\\))?(->[\\da-z_]+?)?${tr}(.*?)${tl}\\/\\2${tr}`, 'gis');
 
         this.context = {};
-        this.funcContext = {};
     }
 
     isPrimitive(test) {
@@ -37,28 +36,36 @@ class Listok {
         return params;
     }
 
-    mergeObjects (target, source) {
-        const result = { ...target };
-        for (const key in source) {
-            if (source[key] !== null && source[key] !== undefined) {
-                result[key] = source[key];
-            }
-        }
-        return result;
-    }
+    // mergeObjects (target, source) {
+    //     const result = { ...target };
+    //     for (const key in source) {
+    //         if (source[key] !== null && source[key] !== undefined) {
+    //             result[key] = source[key];
+    //         }
+    //     }
+    //     return result;
+    // }
 
-    getFromContext(context, key, tagType = '#', ctxPointer) {
+    getFromContext(subContext, key, tagType = '#', ctxPointer) { //  = this.subKey
         let ctx;
-        if (key === this.subKey) {
-            ctx = context;
+        let keyParts = key.split('.');
+
+        if (ctxPointer) subContext._key = ctxPointer;
+
+
+        console.log('subContext', subContext);
+        // console.log('key', key);
+        // console.log('tagType', tagType);
+        console.log('ctxPointer', ctxPointer);
+        console.log('keyParts 0', keyParts[0]);
+        console.log('----------');
+
+
+        if (keyParts[0] === subContext._key) {
+            console.log(keyParts[0], '>', subContext);
+            ctx = get(subContext, keyParts.slice(1).join('.'));
         } else {
-            if(key.charAt(0) === '$') {
-                ctx = this.isPrimitive(this.context) ? '' : get(this.context, key.substring(1));
-            } else {
-                // console.log('key', key);
-                // console.log('context', this.mergeObjects(context, this.funcContext));
-                ctx = get(this.mergeObjects(context, this.funcContext), key);
-            }
+            ctx = get(this.context, key);
         }
         return tagType === '!' ? !ctx : ctx;
     }
@@ -67,7 +74,7 @@ class Listok {
         template = template.replaceAll(this.sectionReg, (original, tagType, tagName, tagParams, _ctxPointer, innerBody) => {
             let ctxPointer = _ctxPointer ? _ctxPointer.slice(2) : null; // remove '->'
             // console.log({tagType, tagName, tagParams, ctxPointer});
-            let subContext = this.getFromContext(context, tagName, tagType, ctxPointer);
+            let subContext = this.getFromContext(context, tagName, tagType, ctxPointer || this.subKey);
             return this.replaceSection(innerBody, subContext, tagParams);
         });
 
@@ -121,7 +128,7 @@ class Listok {
         if (key === 'include' && tagParams) {
             // console.log('INCL', key, tagParams);
             let fileName = tagParams.trim().slice(1,-1);
-            return this.renderFile(fileName, context, false);
+            return this.renderFile(fileName);
         }
         let func = this.getFromContext(context, key);
         if (this.isEmpty(func)) {
@@ -134,21 +141,21 @@ class Listok {
     }
 
     defineFunction(name, fn) {
-        this.funcContext[name] = fn;
+        this.context[name] = fn;
     }
 
-    render(template, context, setGlobalContext = true) {
-        if (setGlobalContext) this.context = context;
+    render(template, context) {
+        if (context !== undefined) this.context = context;
         return this.parseSections(template, context);
     }
 
-    renderFile(fileName, context, setGlobalContext = true) {
+    renderFile(fileName, context) {
         let filePath = pathLib.join(this.viewsDir, fileName);
         if (!fs.existsSync(filePath)) {
             throw new Error(`Template file ${filePath} not found!`);
         }
         let template = fs.readFileSync(filePath).toString();
-        if (setGlobalContext) this.context = context;
+        if (context !== undefined) this.context = context;
         return this.parseSections(template, context);
     }
 }
