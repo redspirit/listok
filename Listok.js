@@ -6,7 +6,6 @@ class Listok {
     constructor(viewsDir) {
         this.viewsDir = viewsDir ? viewsDir : process.cwd();
         this.tags = ['{{', '}}'];
-        this.subKey = '_';
         let tl = this.tags[0];
         let tr = this.tags[1];
 
@@ -36,36 +35,31 @@ class Listok {
         return params;
     }
 
-    // mergeObjects (target, source) {
-    //     const result = { ...target };
-    //     for (const key in source) {
-    //         if (source[key] !== null && source[key] !== undefined) {
-    //             result[key] = source[key];
-    //         }
-    //     }
-    //     return result;
-    // }
+    mergeObjects (target, source) {
+        const result = { ...target };
+        for (const key in source) {
+            if (source[key] !== null && source[key] !== undefined) {
+                result[key] = source[key];
+            }
+        }
+        return result;
+    }
 
-    getFromContext(subContext, key, tagType = '#', ctxPointer) { //  = this.subKey
-        let ctx;
-        let keyParts = key.split('.');
-
-        if (ctxPointer) subContext._key = ctxPointer;
-
-
-        console.log('subContext', subContext);
-        // console.log('key', key);
-        // console.log('tagType', tagType);
-        console.log('ctxPointer', ctxPointer);
-        console.log('keyParts 0', keyParts[0]);
-        console.log('----------');
-
-
-        if (keyParts[0] === subContext._key) {
-            console.log(keyParts[0], '>', subContext);
-            ctx = get(subContext, keyParts.slice(1).join('.'));
+    getFromContext(subContext, key, tagType = '#', ctxPointer) {
+        let ctx = {};
+        if (ctxPointer) {
+            let val = get(subContext, key) || get(this.context, key);
+            if (Array.isArray(val)) {
+                ctx = val.map(item => {
+                    item[ctxPointer] = { ...item };
+                    return item;
+                    // return {[ctxPointer]: item};
+                });
+            } else {
+                ctx[ctxPointer] = val;
+            }
         } else {
-            ctx = get(this.context, key);
+            ctx = get(subContext, key) || get(this.context, key);
         }
         return tagType === '!' ? !ctx : ctx;
     }
@@ -74,7 +68,7 @@ class Listok {
         template = template.replaceAll(this.sectionReg, (original, tagType, tagName, tagParams, _ctxPointer, innerBody) => {
             let ctxPointer = _ctxPointer ? _ctxPointer.slice(2) : null; // remove '->'
             // console.log({tagType, tagName, tagParams, ctxPointer});
-            let subContext = this.getFromContext(context, tagName, tagType, ctxPointer || this.subKey);
+            let subContext = this.getFromContext(context, tagName, tagType, ctxPointer);
             return this.replaceSection(innerBody, subContext, tagParams);
         });
 
@@ -145,7 +139,7 @@ class Listok {
     }
 
     render(template, context) {
-        if (context !== undefined) this.context = context;
+        if (context !== undefined) this.context = this.mergeObjects(this.context, context);
         return this.parseSections(template, context);
     }
 
@@ -155,7 +149,7 @@ class Listok {
             throw new Error(`Template file ${filePath} not found!`);
         }
         let template = fs.readFileSync(filePath).toString();
-        if (context !== undefined) this.context = context;
+        if (context !== undefined) this.context = this.mergeObjects(this.context, context);
         return this.parseSections(template, context);
     }
 }
