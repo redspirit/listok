@@ -4,12 +4,12 @@ Items in my room!
 
 {{#room->r}}
 
-    Room name: {{name}}
+Room name: {{r.name}}
 
-    {{#r.items->item}}
+{{#r.items->item}}
 
-        Item {{item.caption}} in room {{r.name}}
+    Item {{item.caption}} in room {{r.name}}
 
-    {{/r.items}}
+{{/r.items}}
 
 {{/room}}

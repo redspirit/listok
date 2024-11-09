@@ -34,4 +34,17 @@ describe('Read template from files', () => {
         expect(rendered).to.equal(result);
     });
 
+    it('should render include file', () => {
+        let listok = new Listok(tmpPath);
+        const data = {
+            title: 'Site',
+            author: 'Octopus'
+        };
+        const rendered = listok.renderFile('3_include.html', data);
+
+        let result = fs.readFileSync(`${tmpPath}/3_include_result.html`).toString();
+
+        expect(rendered).to.equal(result);
+    });
+
 });

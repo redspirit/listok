@@ -13,6 +13,7 @@ class Listok {
         this.sectionReg = new RegExp(`${tl}([#!])([\\da-z_.!$]+?)(\\(.*?\\))?(->[\\da-z_]+?)?${tr}(.*?)${tl}\\/\\2${tr}`, 'gis');
 
         this.context = {};
+        this.pointers = {};
     }
 
     isPrimitive(test) {
@@ -47,8 +48,9 @@ class Listok {
 
     getFromContext(subContext, key, tagType = '#', ctxPointer) {
         let ctx = {};
+        let val = get(subContext, key) || get(this.pointers, key) || get(this.context, key);
+
         if (ctxPointer) {
-            let val = get(subContext, key) || get(this.context, key);
             if (Array.isArray(val)) {
                 ctx = val.map(item => {
                     item[ctxPointer] = { ...item };
@@ -56,12 +58,12 @@ class Listok {
                     // return {[ctxPointer]: item};
                 });
             } else {
-                ctx[ctxPointer] = val;
+                this.pointers[ctxPointer] = val;
             }
         } else {
-            console.log('subContext', subContext);
-            console.log('key', key);
-            ctx = get(subContext, key) || get(this.context, key);
+            // console.log('subContext', subContext);
+            // console.log('key', key);
+            ctx = val;
         }
         return tagType === '!' ? !ctx : ctx;
     }
@@ -71,7 +73,9 @@ class Listok {
             let ctxPointer = _ctxPointer ? _ctxPointer.slice(2) : null; // remove '->'
             // console.log({tagType, tagName, tagParams, ctxPointer});
             let subContext = this.getFromContext(context, tagName, tagType, ctxPointer);
-            return this.replaceSection(innerBody, subContext, tagParams);
+            let replaceResult = this.replaceSection(innerBody, subContext, tagParams);
+            if (ctxPointer) delete this.pointers[ctxPointer]; // remove pointer
+            return replaceResult;
         });
 
         template = template.replaceAll(this.tagReg, (original, tagName, tagParams) => {
