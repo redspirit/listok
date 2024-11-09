@@ -84,7 +84,6 @@ listok.render('Sum 3 and 5 equal {{sum(a=3, b=5)}}', {
 ```js
 listok.render('My name is{{nameToBold()}}!', {
     nameToBold: (params, ctx) => {
-        // Внимание! Все параметры имеют тип String
         return `<b>${ctx.person.name}</b>`;
     },
     person: {
