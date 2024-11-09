@@ -71,7 +71,7 @@ describe('Subcontext Sections', () => {
 
     it('should render placeholder within context', () => {
         let listok = new Listok();
-        const template = 'Person: {{#person->man}} {{man.name}} {{/person}}!';
+        const template = 'Person: {{#person->man}} {{man.name}}={{name}} {{/person}}!';
         const data = {
             person: {
                 name: 'Alex',

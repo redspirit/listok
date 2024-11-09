@@ -59,6 +59,8 @@ class Listok {
                 ctx[ctxPointer] = val;
             }
         } else {
+            console.log('subContext', subContext);
+            console.log('key', key);
             ctx = get(subContext, key) || get(this.context, key);
         }
         return tagType === '!' ? !ctx : ctx;

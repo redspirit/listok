@@ -1,0 +1,15 @@
+Items in my room!
+
+{{title}}
+
+{{#room->r}}
+
+    Room name: {{name}}
+
+    {{#r.items->item}}
+
+        Item {{item.caption}} in room {{r.name}}
+
+    {{/r.items}}
+
+{{/room}}
