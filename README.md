@@ -49,8 +49,6 @@ listok.render('<p>{{firstName}} {{lastName}}</p>', {
 ```
 ### Dot-notation
 ```js
-let listok = new Listok();
-
 listok.render('My name is {{person.name}}, Im {{person.age}} years old', {
     person: {
         name: 'John',
@@ -61,8 +59,6 @@ listok.render('My name is {{person.name}}, Im {{person.age}} years old', {
 
 ### Function
 ```js
-let listok = new Listok();
-
 listok.render('Today is {{getDate()}}', {
     getDate: () => {
         const date = new Date();
@@ -76,8 +72,6 @@ listok.render('Today is {{getDate()}}', {
 
 ### Function with params
 ```js
-let listok = new Listok();
-
 listok.render('Sum 3 and 5 equal {{sum(a=3, b=5)}}', {
     sum: (params) => {
         // Внимание! Все параметры имеют тип String
@@ -88,8 +82,6 @@ listok.render('Sum 3 and 5 equal {{sum(a=3, b=5)}}', {
 
 ### Use context in function
 ```js
-let listok = new Listok();
-
 listok.render('My name is{{nameToBold()}}!', {
     nameToBold: (params, ctx) => {
         // Внимание! Все параметры имеют тип String
@@ -102,12 +94,10 @@ listok.render('My name is{{nameToBold()}}!', {
 }); // "My name <b>John</b>!"
 ```
 
-### Use special method
+### Use .defineFunction()
 Любую функцию можно добавить с помощью метода `.defineFunction(name, fn)`, таким образом функция добавится в корень контекста, это более "чистый" способ добавить функцию для использования в шаблонах, хотя никто не запрещает описать функцию в самом контексте напрямую как в примерах выше.
 
 ```js
-let listok = new Listok();
-
 listok.defineFunction('pow', (params) => {
     return Math.pow(params.val, 2);
 })
@@ -115,13 +105,55 @@ listok.defineFunction('pow', (params) => {
 listok.render('5^2 = {{pow(val=5)}}', {}); // "5^2 = 25"
 ```
 
-
 ## Sections
+Секции использются для того, чтобы отображать или удалять часть шаблона. 
+В примере ниже `{{#isHeader}} IS HEADER {{/isHeader}}` отобразиться только когда свойство `isHeader` истино.  
+Чтобы инвертировать секцию используется символ "!" вместо "#".
+```js
+listok.render('This {{#isHeader}} IS HEADER {{/isHeader}} {{!isHeader}} NOT HEADER {{/isHeader}}', 
+    { isHeader: true }
+); // "This  IS HEADER  "
+```
+
+Секция также создает внутри себя контекст к которому можно братиться:
+```js
+listok.render('Person: {{#person}} {{name}}, {{age}} {{/person}}', {
+    person: {
+        name: 'Alex',
+        age: 30
+    }
+}); // "Person:  Alex, 30 "
+```
+
+Контексту внутри секции можно явно задать имя и обращаться к свойствам контекста по его имени.  
+Пример ниже демонстрирует, что внутри секции `{{#person->man}}` можно обратиться к имени через `{{man.name}}`, 
+а за пределами секции доступа к `man` уже не будет
+```js
+listok.render('Person: {{#person->man}} {{man.name}} {{/person}} {{man.age}}', {
+    person: {
+        name: 'Alex',
+        age: 30
+    }
+}); // "Person:  Alex  "
+```
 
 ## Iterations
+Если значением секции будет массив, то шаблонизатор отобразит содержимое секции столько раз, сколько эементов в массиве:
+```js
+listok.render('<ul>{{#guests}} <li>{{name}}</li> {{/guests}}</ul>', {
+    guests: [{name: 'Alex'}, {name: 'Max'}, {name: 'Nina'} ]
+}); // "<ul> <li>Alex</li>  <li>Max</li>  <li>Nina</li> </ul>"
+```
 
+Внимание! Если элементы массива это примитивы, то тогда совершенно любой ключ его отобразит:
+```js
+listok.render('<ul>{{#items}} <li>{{_}}</li> {{/items}}</ul>', {
+    items: ['one', 'two', 'three']
+}); // "<ul> <li>one</li>  <li>two</li>  <li>three</li> </ul>"
+```
+
+---
 
 ### Todo:
-- Больше тестов с файлами и include файлов
 - Добавить экранирование html при вставке
 - Добавить асинхронность в функциях контекста
