@@ -1,4 +1,4 @@
-# listok
+# listok.js
 
 Шаблонизатор для Node.js с синтаксисом {{mustache}}
 
