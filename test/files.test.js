@@ -47,4 +47,25 @@ describe('Read template from files', () => {
         expect(rendered).to.equal(result);
     });
 
+    it('should render iteration in section', () => {
+        let listok = new Listok(tmpPath);
+        listok.defineFunction('getPages', ({limit}) => {
+            console.log('LIMIT', limit);
+            return Array(parseInt(limit)).fill(0).map((item, i) => {
+                return {
+                    title: `Title ${i+1}`,
+                    url: `/page-${i+1}`
+                }
+            })
+        })
+        const data = {
+            isHome: true,
+        };
+        const rendered = listok.renderFile('4_iterator_in_section.html', data);
+
+        let result = fs.readFileSync(`${tmpPath}/4_iterator_in_section_result.html`).toString();
+
+        expect(rendered).to.equal(result);
+    });
+
 });

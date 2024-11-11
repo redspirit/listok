@@ -16,10 +16,6 @@ class Listok {
         this.pointers = {};
     }
 
-    isPrimitive(test) {
-        return test !== Object(test);
-    }
-
     isEmpty(val) {
         return val === null || val === undefined || val === false || val === '';
     }
@@ -46,9 +42,18 @@ class Listok {
         return result;
     }
 
-    getFromContext(subContext, key, tagType = '#', ctxPointer) {
+    getValue (obj, key) {
+        if (obj !== Object(obj)) {
+            // is primitive
+            return key === '_' ? obj : null;
+        } else {
+            return get(obj, key);
+        }
+    }
+
+    getFromContext (subContext, key, tagType = '#', ctxPointer) {
         let ctx = {};
-        let val = get(subContext, key) || get(this.pointers, key) || get(this.context, key);
+        let val = this.getValue(subContext, key) || this.getValue(this.pointers, key) || this.getValue(this.context, key);
 
         if (ctxPointer) {
             if (Array.isArray(val)) {
@@ -61,8 +66,6 @@ class Listok {
                 this.pointers[ctxPointer] = val;
             }
         } else {
-            // console.log('subContext', subContext);
-            // console.log('key', key);
             ctx = val;
         }
         return tagType === '!' ? !ctx : ctx;

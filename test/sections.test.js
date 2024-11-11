@@ -133,8 +133,6 @@ describe('Iterate sections', () => {
 
     it('should render plain array', () => {
         let listok = new Listok();
-        // если контекст это примитив, то ключ может быть ЛЮБОЙ и он всегда вернет этот примитив
-        // по этому внутри items может быть и {{_}} и {{.}} и {{hello.world}} результат будет одинаков
         const template = '<ul>{{#items}} <li>{{_}}</li> {{/items}}</ul>';
         const data = {
             items: ['one', 'two', 'three']
@@ -180,7 +178,6 @@ describe('Iterate sections', () => {
         expect(rendered).to.equal('<ul><li><a href="/page-1">Title 1</a></li><li><a href="/page-2">Title 2</a></li><li><a href="/page-3">Title 3</a></li></ul>');
     });
 
-
     it('should render menu from function items', () => {
         let listok = new Listok();
         const template = '<ul>{{#getPages(limit=3)}}<li><a href="{{url}}">{{title}}</a></li>{{/getPages}}</ul>';
@@ -195,6 +192,22 @@ describe('Iterate sections', () => {
             }
         };
         const rendered = listok.render(template, data);
+        expect(rendered).to.equal('<ul><li><a href="/page-1">Title 1</a></li><li><a href="/page-2">Title 2</a></li><li><a href="/page-3">Title 3</a></li></ul>');
+    });
+
+    it('should render menu from function items (.defineFunction)', () => {
+        let listok = new Listok();
+        const template = '<ul>{{#getPages(limit=3)}}<li><a href="{{url}}">{{title}}</a></li>{{/getPages}}</ul>';
+
+        listok.defineFunction('getPages', ({limit}) => {
+            return Array(parseInt(limit)).fill(0).map((item, i) => {
+                return {
+                    title: `Title ${i+1}`,
+                    url: `/page-${i+1}`
+                }
+            })
+        })
+        const rendered = listok.render(template, {});
         expect(rendered).to.equal('<ul><li><a href="/page-1">Title 1</a></li><li><a href="/page-2">Title 2</a></li><li><a href="/page-3">Title 3</a></li></ul>');
     });
 
