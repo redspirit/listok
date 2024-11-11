@@ -112,6 +112,21 @@ describe('Subcontext Sections', () => {
         expect(rendered).to.equal('Person:  Alex  engineer  ');
     });
 
+    it('should render context from function', () => {
+        let listok = new Listok();
+        const template = 'Page info: {{#getPage()}}<a href="{{url}}">{{title}}</a>{{/getPage}}';
+        const data = {
+            getPage: () => {
+                return {
+                    title: 'About me',
+                    url: '/about'
+                }
+            }
+        };
+        const rendered = listok.render(template, data);
+        expect(rendered).to.equal('Page info: <a href="/about">About me</a>');
+    });
+
 });
 
 describe('Iterate sections', () => {
@@ -146,6 +161,41 @@ describe('Iterate sections', () => {
         };
         const rendered = listok.render(template, data);
         expect(rendered).to.equal('<ul> <li>Alex=Alex</li>  <li>Max=Max</li>  <li>Nina=Nina</li> </ul>');
+    });
+
+    it('should render menu from function items', () => {
+        let listok = new Listok();
+        const template = '<ul>{{#getPages(limit=3)}}<li><a href="{{url}}">{{title}}</a></li>{{/getPages}}</ul>';
+        const data = {
+            getPages: ({limit}) => {
+                return Array(parseInt(limit)).fill(0).map((item, i) => {
+                    return {
+                        title: `Title ${i+1}`,
+                        url: `/page-${i+1}`
+                    }
+                })
+            }
+        };
+        const rendered = listok.render(template, data);
+        expect(rendered).to.equal('<ul><li><a href="/page-1">Title 1</a></li><li><a href="/page-2">Title 2</a></li><li><a href="/page-3">Title 3</a></li></ul>');
+    });
+
+
+    it('should render menu from function items', () => {
+        let listok = new Listok();
+        const template = '<ul>{{#getPages(limit=3)}}<li><a href="{{url}}">{{title}}</a></li>{{/getPages}}</ul>';
+        const data = {
+            getPages: ({limit}) => {
+                return Array(parseInt(limit)).fill(0).map((item, i) => {
+                    return {
+                        title: `Title ${i+1}`,
+                        url: `/page-${i+1}`
+                    }
+                })
+            }
+        };
+        const rendered = listok.render(template, data);
+        expect(rendered).to.equal('<ul><li><a href="/page-1">Title 1</a></li><li><a href="/page-2">Title 2</a></li><li><a href="/page-3">Title 3</a></li></ul>');
     });
 
 });
