@@ -102,7 +102,7 @@ class Listok {
             }
             return multiBody;
         } else if (typeof subContext === 'function') {  // is function
-            let funcResult = subContext(this.parseFunctionParams(tagParams, subContext));
+            let funcResult = subContext(this.parseFunctionParams(tagParams, subContext), context, this.context);
             // console.log('REPL innerBody', innerBody);
             // console.log('REPL funcResult', funcResult);
             return this.replaceSection(innerBody, funcResult);
@@ -121,7 +121,7 @@ class Listok {
         } else if (typeof value === 'string') {
             return value;
         } else if (typeof value === 'function') {
-            return value(context);
+            return value(context, this.context);
         } else {
             return value ? value.toString() : '';
         }
@@ -137,7 +137,7 @@ class Listok {
         if (this.isEmpty(func)) {
             return '';
         } else if(typeof func === 'function') {
-            return func(this.parseFunctionParams(tagParams), context);
+            return func(this.parseFunctionParams(tagParams), context, this.context);
         } else {
             return func.toString();
         }

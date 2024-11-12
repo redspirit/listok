@@ -127,6 +127,20 @@ describe('Subcontext Sections', () => {
         expect(rendered).to.equal('Page info: <a href="/about">About me</a>');
     });
 
+    it('should return correct ctx value in section', () => {
+        let listok = new Listok();
+        const template = '{{#showMe}} {{getPayload()}} {{/showMe}}';
+        const data = {
+            showMe: true,
+            value: 10,
+            getPayload: (params, ctx, rootCtx) => {
+                return rootCtx.value
+            }
+        };
+        const rendered = listok.render(template, data);
+        expect(rendered).to.equal(' 10 ');
+    });
+
 });
 
 describe('Iterate sections', () => {

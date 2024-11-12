@@ -83,7 +83,9 @@ listok.render('Sum 3 and 5 equal {{sum(a=3, b=5)}}', {
 ### Use context in function
 ```js
 listok.render('My name is{{nameToBold()}}!', {
-    nameToBold: (params, ctx) => {
+    nameToBold: (params, ctx, rootCtx) => {
+        // ctx - контекст внутри секции
+        // rootCtx - весь контекст переданный шаблонизатору
         return `<b>${ctx.person.name}</b>`;
     },
     person: {
