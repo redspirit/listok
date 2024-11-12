@@ -102,9 +102,7 @@ class Listok {
             }
             return multiBody;
         } else if (typeof subContext === 'function') {  // is function
-            let funcResult = subContext(this.parseFunctionParams(tagParams, subContext), context, this.context);
-            // console.log('REPL innerBody', innerBody);
-            // console.log('REPL funcResult', funcResult);
+            let funcResult = subContext(this.parseFunctionParams(tagParams, subContext), this.context);
             return this.replaceSection(innerBody, funcResult);
         } else {        // is object
             return this.parseSections(innerBody, subContext);
