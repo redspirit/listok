@@ -59,6 +59,7 @@ describe('Read template from files', () => {
             })
         })
         const data = {
+            title: 'Global site title',
             isHome: true,
         };
         const rendered = listok.renderFile('4_iterator_in_section.html', data);
